@@ -1,0 +1,39 @@
+version: '3.1'
+
+services:
+
+  redmine:
+    image: redmine
+    restart: always
+    ports:
+      - 3033:3000
+    environment:
+      REDMINE_DB_MYSQL: mysql
+      REDMINE_DB_PASSWORD: example
+      REDMINE_SECRET_KEY_BASE: supersecretkey
+    volumes:
+      - ./redmine_files:/usr/src/redmine/files
+      - ./redmine_plugins:/usr/src/redmine/plugins
+  
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=example # MySQL root password
+      - MYSQL_DATABASE=redmine #  REDMINE database name
+      - MYSQL_USER=rm_user #  REDMINE database user
+      - MYSQL_PASSWORD=1234 #  database password
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+  
+  phpmyadmin:
+    depends_on:
+      - mysql
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    environment:
+      - PMA_HOST=mysql
+      - MYSQL_ROOT_PASSWORD=1234
+  
